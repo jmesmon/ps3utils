@@ -8,7 +8,7 @@
 # License ("GPL") version 3, as published by the Free Software Foundation.
 #
 
-BUILDDIR=`pwd`
+BUILDDIR=$(pwd)
 export PATH=$PATH:$BUILDDIR:$BUILDDIR/../ps3tools/
 
 AWK="awk"
@@ -19,7 +19,7 @@ UNPKG="unpkg"
 LOGFILE="$BUILDDIR/create_cfw.log"
 OUTDIR="$BUILDDIR/CFW"
 OFWDIR="$BUILDDIR/OFW"
-
+USTARCMD="tar --format ustar -cvf"
 INFILE=$1
 OUTFILE=$2
 
@@ -93,7 +93,7 @@ rm $TAR_FILE
 copy_category_tool_xml
 
 log "Recreating dev_flash archive"
-tar -H ustar -cvf $TAR_FILE dev_flash/ >> $LOGFILE 2>&1 || die "Could not create dev_flash tar file"
+$USTARCMD $TAR_FILE dev_flash/ >> $LOGFILE 2>&1 || die "Could not create dev_flash tar file"
 $FIX_TAR $TAR_FILE >> $LOGFILE 2>&1 || die "Could not fix the tar file"
 
 PKG_FILE=$(basename $(dirname $TAR_FILE) .tar)
@@ -104,7 +104,7 @@ cd $OUTDIR/update_files
 rm -rf dev_flash
 
 log "Creating update files archive"
-tar -H ustar -cvf $OUTDIR/update_files.tar *.pkg *.img dev_flash3_* dev_flash_*  >> $LOGFILE 2>&1 || die "Could not create update files archive"
+$USTARCMD $OUTDIR/update_files.tar *.pkg *.img dev_flash3_* dev_flash_*  >> $LOGFILE 2>&1 || die "Could not create update files archive"
 $FIX_TAR $OUTDIR/update_files.tar >> $LOGFILE 2>&1 || die "Could not fix update tar file"
 
 VERSION=$(cat $OUTDIR/version.txt)
