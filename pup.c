@@ -421,7 +421,7 @@ static void create (const char *directory, const char *dest, long build)
   }
 
   memset (&header, 0, sizeof(PUPHeader));
-  memset (&footer, 0, sizeof(PUPHeader));
+  memset (&footer, 0, sizeof(PUPFooter));
 
   header.magic = PUP_MAGIC;
   header.package_version = 1;
