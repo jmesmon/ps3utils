@@ -20,9 +20,10 @@ LOGFILE="$BUILDDIR/create_cfw.log"
 OUTDIR="$BUILDDIR/CFW"
 OFWDIR="$BUILDDIR/OFW"
 
+INFILE=$1
+OUTFILE=$2
 
-
-if [ "x$1" == "x" -o "x$2" == "x" ]; then
+if [ "x$INFILE" == "x" -o "x$OUTFILE" == "x" ]; then
     echo "Usage: $0 OFW.PUP CFW.PUP"
     exit
 fi
@@ -49,15 +50,15 @@ log "PS3 Custom Firmware Creator"
 log "By KaKaRoTo"
 log ""
 
-log "Deleting $OUTDIR and $2"
+log "Deleting $OUTDIR and $OUTFILE"
 rm -rf $OUTDIR
-rm -f $2
+rm -f $OUTFILE
 if [ "x$OFWDIR" != "x" ]; then
     rm -rf $OFWDIR
 fi
 
-log "Unpacking update file $1"
-$PUP x $1 $OUTDIR >> $LOGFILE 2>&1 || die "Could not extract the PUP file"
+log "Unpacking update file $INFILE"
+$PUP x $INFILE $OUTDIR >> $LOGFILE 2>&1 || die "Could not extract the PUP file"
 
 cd $OUTDIR
 mkdir update_files
@@ -102,15 +103,6 @@ mv $PKG_FILE $OUTDIR/update_files
 cd $OUTDIR/update_files
 rm -rf dev_flash
 
-log "Retreiving package build number"
-BUILD_NUMBER=$($PUP i $1 2>/dev/null | grep "Image version" | $AWK '{print $3}')
-
-if [ "x$BUILD_NUMBER" == "x" ]; then
-    die "Could not find build number"
-fi
-
-log "Found build number : $BUILD_NUMBER"
-
 log "Creating update files archive"
 tar -H ustar -cvf $OUTDIR/update_files.tar *.pkg *.img dev_flash3_* dev_flash_*  >> $LOGFILE 2>&1 || die "Could not create update files archive"
 $FIX_TAR $OUTDIR/update_files.tar >> $LOGFILE 2>&1 || die "Could not fix update tar file"
@@ -120,7 +112,16 @@ echo "$VERSION-KaKaRoTo" > $OUTDIR/version.txt
 
 cd $BUILDDIR
 
+log "Retreiving package build number"
+BUILD_NUMBER=$($PUP i $INFILE 2>/dev/null | grep "Image version" | $AWK '{print $3}')
+
+if [ "x$BUILD_NUMBER" == "x" ]; then
+    die "Could not find build number"
+fi
+
+log "Found build number : $BUILD_NUMBER"
+
 log "Creating CFW file"
-$PUP c $OUTDIR $2 $BUILD_NUMBER >> $LOGFILE 2>&1 || die "Could not Create PUP file"
+$PUP c $OUTDIR $OUTFILE $BUILD_NUMBER >> $LOGFILE 2>&1 || die "Could not Create PUP file"
 
 
