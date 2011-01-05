@@ -54,7 +54,7 @@ int main (int argc, char *argv[])
   }
 
   do {
-    size_t size = 0;
+    unsigned int size = 0;
     unsigned int checksum = 0;
     unsigned int i;
 
@@ -75,7 +75,8 @@ int main (int argc, char *argv[])
     strncpy (block.group_id, "0001274", 7);
     strncpy (block.owner, "pup_tool", 32);
     strncpy (block.group, "psnes", 32);
-    strncpy (block.ustar, "ustar  ", 7);
+    strncpy (block.ustar, "ustar  ", 6);
+    block.ustar_version[0] = ' ';
     block.ustar_version[1] = 0;
     memset (block.device_major, 0, 8);
     memset (block.device_minor, 0, 8);
