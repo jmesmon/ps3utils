@@ -9,10 +9,12 @@
 #
 
 BUILDDIR=`pwd`
-PUP="$BUILDDIR/pup"
-FIX_TAR="$BUILDDIR/fix_tar"
-PKG="$BUILDDIR/../ps3tools/pkg"
-UNPKG="$BUILDDIR/../ps3tools/unpkg"
+export PATH=$PATH:$BUILDDIR:$BUILDDIR/../ps3tools/
+
+PUP="pup"
+FIX_TAR="fix_tar"
+PKG="pkg"
+UNPKG="unpkg"
 LOGFILE="$BUILDDIR/create_cfw.log"
 OUTDIR="$BUILDDIR/CFW"
 OFWDIR="$BUILDDIR/OFW"
