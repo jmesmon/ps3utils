@@ -11,6 +11,7 @@
 BUILDDIR=`pwd`
 export PATH=$PATH:$BUILDDIR:$BUILDDIR/../ps3tools/
 
+AWK="awk"
 PUP="pup"
 FIX_TAR="fix_tar"
 PKG="pkg"
@@ -102,7 +103,7 @@ cd $OUTDIR/update_files
 rm -rf dev_flash
 
 log "Retreiving package build number"
-BUILD_NUMBER=$($PUP i $1 2>/dev/null | grep "Image version" | awk '{print $3}')
+BUILD_NUMBER=$($PUP i $1 2>/dev/null | grep "Image version" | $AWK '{print $3}')
 
 if [ "x$BUILD_NUMBER" == "x" ]; then
     die "Could not find build number"
