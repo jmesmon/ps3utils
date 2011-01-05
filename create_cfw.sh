@@ -102,9 +102,7 @@ cd $OUTDIR/update_files
 rm -rf dev_flash
 
 log "Retreiving package build number"
-$UNPKG UPL.xml.pkg UPL.xml >> $LOGFILE 2>&1 || die "Could not unpkg UPL.xml"
-BUILD_NUMBER=$(grep Build UPL.xml/content | awk '{ match($1, /<Build>([0-9]*)/, arr); print arr[1]}')
-rm -rf UPL.xml
+BUILD_NUMBER=$($PUP i $1 2>/dev/null | grep "Image version" | awk '{print $3}')
 
 if [ "x$BUILD_NUMBER" == "x" ]; then
     die "Could not find build number"
