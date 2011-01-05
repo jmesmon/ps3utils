@@ -11,10 +11,12 @@
 BUILDDIR=`pwd`
 PUP="$BUILDDIR/pup"
 FIX_TAR="$BUILDDIR/fix_tar"
-FWPKG="$BUILDDIR/../fwtool/fwpkg"
+PKG="$BUILDDIR/../ps3tools/pkg"
+UNPKG="$BUILDDIR/../ps3tools/unpkg"
 LOGFILE="$BUILDDIR/create_cfw.log"
 OUTDIR="$BUILDDIR/CFW"
 OFWDIR="$BUILDDIR/OFW"
+
 
 
 if [ "x$1" == "x" -o "x$2" == "x" ]; then
@@ -71,11 +73,11 @@ mkdir dev_flash
 cd dev_flash
 log "Unpkg-ing dev_flash files"
 for f in ../dev_flash*tar*; do
-    $FWPKG d $f "$(basename $f).tar" >> $LOGFILE 2>&1 || die "Could not unpkg $f"
+    $UNPKG $f "$(basename $f).tar" >> $LOGFILE 2>&1 || die "Could not unpkg $f"
 done
 
 log "Searching for category_game_tool2.xml in dev_flash"
-TAR_FILE=$(grep -l "category_game_tool2.xml" *.tar)
+TAR_FILE=$(grep -l "category_game_tool2.xml" *.tar/content)
 if [ "x$TAR_FILE" == "x" ]; then
     die "Could not find category_game_tool2.xml"
 fi
@@ -90,16 +92,17 @@ log "Recreating dev_flash archive"
 tar -H ustar -cvf $TAR_FILE dev_flash/ >> $LOGFILE 2>&1 || die "Could not create dev_flash tar file"
 $FIX_TAR $TAR_FILE >> $LOGFILE 2>&1 || die "Could not fix the tar file"
 
-log "Recreating pkg file"
-cd ..
-$FWPKG e dev_flash/$TAR_FILE $(basename $TAR_FILE .tar)  >> $LOGFILE 2>&1 || die "Could not create pkg file"
+PKG_FILE=$(basename $(dirname $TAR_FILE) .tar)
+log "Recreating pkg file $PKG_FILE"
+$PKG retail $(dirname $TAR_FILE) $PKG_FILE  >> $LOGFILE 2>&1 || die "Could not create pkg file"
+mv $PKG_FILE $OUTDIR/update_files
+cd $OUTDIR/update_files
 rm -rf dev_flash
-log "WARNING: TODO: fwpkg not only doesn't sign, but it also crops the file corrupting it"
 
 log "Retreiving package build number"
-$FWPKG d UPL.xml.pkg UPL.xml >> $LOGFILE 2>&1 || die "Could not unpkg UPL.xml"
-BUILD_NUMBER=$(grep Build UPL.xml | awk '{ match($1, /<Build>([0-9]*)/, arr); print arr[1]}')
-rm UPL.xml
+$UNPKG UPL.xml.pkg UPL.xml >> $LOGFILE 2>&1 || die "Could not unpkg UPL.xml"
+BUILD_NUMBER=$(grep Build UPL.xml/content | awk '{ match($1, /<Build>([0-9]*)/, arr); print arr[1]}')
+rm -rf UPL.xml
 
 if [ "x$BUILD_NUMBER" == "x" ]; then
     die "Could not find build number"
