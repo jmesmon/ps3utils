@@ -121,7 +121,6 @@ $FIX_TAR "$TAR_FILE" >> "$LOGFILE" 2>&1 || die "Could not fix the tar file"
 
 PKG_FILE=$(basename $(dirname $TAR_FILE) .tar)
 log "Recreating pkg file $PKG_FILE"
-log "Entropy needed for random key signing. MOVE YOUR MOUSE until it's done!!!"
 $PKG retail "$(dirname $TAR_FILE)" "$PKG_FILE"  >> "$LOGFILE" 2>&1 || die "Could not create pkg file"
 mv "$PKG_FILE" "$OUTDIR/update_files"
 cd "$OUTDIR/update_files"
