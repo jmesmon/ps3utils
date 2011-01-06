@@ -23,9 +23,17 @@ OFWDIR="$BUILDDIR/OFW"
 USTARCMD="tar --format ustar -cvf"
 INFILE=$1
 OUTFILE=$2
+SCRIPTDIR=$(cd $(dirname $0) && pwd)
+SEDCMDS="$SCRIPTDIR/sedcmds"
 
 if [ "x$INFILE" == "x" -o "x$OUTFILE" == "x" ]; then
     echo "Usage: $0 OFW.PUP CFW.PUP"
+    exit
+fi
+
+if [ ! -f $SEDCMDS ]; then
+    echo "Could not find sed command file in $SEDCMDS"
+    echo "Make sure the file is in the same directory as this script"
     exit
 fi
 
@@ -35,23 +43,13 @@ patch_category_game_xml()
 
     if [ "$($SED --version 2>&1 | grep GNU -c)" == 0 ]; then
         log "Using BSD sed syntax"
-        SEDCMD="$SED -i '' -f"  # thats two single quotes
+        SED_INPLACE="-i ''"  # thats two single quotes
     else
 	log "Using GNU sed syntax"
-        SEDCMD="$SED -i -f"
+        SED_INPLACE="-i"
     fi
 
-    echo "" > $BUILDDIR/sedcmds
-    for f in $BUILDDIR/sed*_match 
-    do
-        MATCHFILE=$f
-        REPLACEFILE=$(echo $f | cut -d "_" -f 1)_replace
-	echo $($BUILDDIR/build_sed.tcl $MATCHFILE $REPLACEFILE) >> $BUILDDIR/sedcmds
-    done
-
-    $SEDCMD $BUILDDIR/sedcmds dev_flash/vsh/resource/explore/xmb/category_game.xml || die "sed failed"
-
-    rm $BUILDDIR/sedcmds
+    $SED $SED_INPLACE -f $SEDCMDS dev_flash/vsh/resource/explore/xmb/category_game.xml || die "Patching with sed failed"
 }
 
 die()
