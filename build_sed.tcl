@@ -9,7 +9,7 @@
 #
 
 
-proc replace { s } { return [string map {"\r" "" "\n" "\\r\\n" "/" "\\/" "\t" "\\t" "&" "\\&" } $s] }
+proc replace { s } { return [string map {"\r" "" "\n" " " "/" "\\/" "\t" " " "&" "\\&"} $s] }
 proc read_file { f } { set f [open $f]; set r [read $f]; close $f; string trim $r }
 
 if {[expr [llength $argv] % 2] != 0 } {
@@ -17,8 +17,8 @@ if {[expr [llength $argv] % 2] != 0 } {
    exit
 }
 
-set result "sed "
+set result ""
 foreach {match replace} $argv {
-   append result " -e 's/[replace [read_file $match]]/[replace [read_file $replace]]/'"
+   append result "s/[replace [read_file $match]]/[replace [read_file $replace]]/"
 }
 puts $result

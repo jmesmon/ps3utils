@@ -17,6 +17,7 @@ FIX_TAR="fix_tar"
 PKG="pkg"
 UNPKG="unpkg"
 LOGFILE="$BUILDDIR/$(basename $0 .sh).log"
+SED="sed"
 OUTDIR="$BUILDDIR/CFW"
 OFWDIR="$BUILDDIR/OFW"
 USTARCMD="tar --format ustar -cvf"
@@ -31,8 +32,26 @@ fi
 patch_category_game_xml()
 {
     log "Patching XML file"
-    sed -i -e 's/src="sel:\/\/localhost\/welcome?type=game"/src="sel:\/\/localhost\/welcome?type=game"\r\n\t\t\t\t\/>\r\n\t\t\t<Query\r\n\t\t\t\tclass="type:x-xmb\/folder-pixmap"\r\n\t\t\t\tkey="seg_gamedebug"\r\n\t\t\t\tsrc="#seg_gamedebug"\r\n\t\t\t\t\/>\r\n\t\t\t<Query\r\n\t\t\t\tclass="type:x-xmb\/folder-pixmap"\r\n\t\t\t\tkey="seg_package_files"\r\n\t\t\t\tsrc="#seg_package_files"/' -e 's/<\/XMBML>/ \t<View id="seg_gamedebug">\r\n\t\t<Attributes>\r\n\t\t\t<Table key="game_debug">\r\n\t\t\t\t<Pair key="icon_rsc"><String>tex_album_icon<\/String><\/Pair>\r\n\t\t\t\t<Pair key="title_rsc"><String>msg_tool_app_home_ps3_game<\/String><\/Pair>\r\n\t\t\t\t<Pair key="child"><String>segment<\/String><\/Pair>\r\n\t\t\t<\/Table>\r\n\t\t<\/Attributes>\r\n\t\t<Items>\r\n\t\t\t<Query class="type:x-xcb\/game-debug" key="game_debug"  attr="game_debug" \/>\r\n\t\t<\/Items>\r\n\t<\/View>\r\n\r\n\t<View id="seg_package_files">\r\n\t\t<Attributes>\r\n\t\t\t<Table key="host_device">\r\n\t\t\t\t<Pair key="icon_rsc"><String>tex_album_icon<\/String><\/Pair>\r\n\t\t\t\t<Pair key="title_rsc"><String>msg_tool_install_file<\/String><\/Pair>\r\n\t\t\t\t<Pair key="child"><String>segment<\/String><\/Pair>\r\n\t\t\t\t<Pair key="ingame"><String>disable<\/String><\/Pair>\r\n\t\t\t<\/Table>\r\n\t\t<\/Attributes>\r\n\t\t<Items>\r\n\t\t\t<Query\r\n\t\t\t\tclass="type:x-xmb\/xmlpackagefolder"\r\n\t\t\t\tkey="host_device" attr="host_device"\r\n\t\t\t\tsrc="#seg_packages"\r\n\t\t\t\/>\r\n\t\t<\/Items>\r\n\t<\/View>\r\n\r\n\t<View id="seg_packages">\r\n\t\t<Items>\r\n\t\t\t<Query class="type:x-xmb\/xmlpackagefolder" key="host_provider_host" src="host:\/\/localhost\/q?path=\/app_home\/\&suffix=.pkg\&subclass=x-host\/package" \/>\r\n\t\t\t<Query class="type:x-xmb\/xmlpackagefolder" key="host_provider_bdvd" src="host:\/\/localhost\/q?path=\/dev_bdvd\&suffix=.pkg\&subclass=x-host\/package" \/>\r\n\t\t\t<Query class="type:x-xmb\/xmlpackagefolder" key="host_provider_ms" src="host:\/\/localhost\/q?path=\/dev_ms\&suffix=.pkg\&subclass=x-host\/package" \/>\r\n\t\t\t<Query class="type:x-xmb\/xmlpackagefolder" key="host_provider_usb0" src="host:\/\/localhost\/q?path=\/dev_usb000\&suffix=.pkg\&subclass=x-host\/package" \/>\r\n\t\t\t<Query class="type:x-xmb\/xmlpackagefolder" key="host_provider_usb1" src="host:\/\/localhost\/q?path=\/dev_usb001\&suffix=.pkg\&subclass=x-host\/package" \/>\r\n\t\t\t<Query class="type:x-xmb\/xmlpackagefolder" key="host_provider_usb2" src="host:\/\/localhost\/q?path=\/dev_usb002\&suffix=.pkg\&subclass=x-host\/package" \/>\r\n\t\t\t<Query class="type:x-xmb\/xmlpackagefolder" key="host_provider_usb3" src="host:\/\/localhost\/q?path=\/dev_usb003\&suffix=.pkg\&subclass=x-host\/package" \/>\r\n\t\t\t<Query class="type:x-xmb\/xmlpackagefolder" key="host_provider_usb4" src="host:\/\/localhost\/q?path=\/dev_usb004\&suffix=.pkg\&subclass=x-host\/package" \/>\r\n\t\t\t<Query class="type:x-xmb\/xmlpackagefolder" key="host_provider_usb5" src="host:\/\/localhost\/q?path=\/dev_usb005\&suffix=.pkg\&subclass=x-host\/package" \/>\r\n\t\t\t<Query class="type:x-xmb\/xmlpackagefolder" key="host_provider_usb6" src="host:\/\/localhost\/q?path=\/dev_usb006\&suffix=.pkg\&subclass=x-host\/package" \/>\r\n\t\t\t<Query class="type:x-xmb\/xmlpackagefolder" key="host_provider_usb7" src="host:\/\/localhost\/q?path=\/dev_usb007\&suffix=.pkg\&subclass=x-host\/package" \/>\r\n\t\t<\/Items>\r\n\t<\/View>\r\n\r\n<\/XMBML>\r\n/' dev_flash/vsh/resource/explore/xmb/category_game.xml || die "Could not copy file"
 
+    if [ "$($SED --version 2>&1 | grep GNU -c)" == 0 ]; then
+        log "Using BSD sed syntax"
+        SEDCMD="$SED -i '' -f"  # thats two single quotes
+    else
+	log "Using GNU sed syntax"
+        SEDCMD="$SED -i -f"
+    fi
+
+    echo "" > $BUILDDIR/sedcmds
+    for f in $BUILDDIR/sed*_match 
+    do
+        MATCHFILE=$f
+        REPLACEFILE=$(echo $f | cut -d "_" -f 1)_replace
+	echo $($BUILDDIR/build_sed.tcl $MATCHFILE $REPLACEFILE) >> $BUILDDIR/sedcmds
+    done
+
+    $SEDCMD $BUILDDIR/sedcmds dev_flash/vsh/resource/explore/xmb/category_game.xml || die "sed failed"
+
+    rm $BUILDDIR/sedcmds
 }
 
 die()
