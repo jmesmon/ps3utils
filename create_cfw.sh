@@ -35,10 +35,10 @@ patch_category_game_xml()
 
     if [ "$($SED --version 2>&1 | grep GNU -c)" == 0 ]; then
         log "Using BSD sed syntax"
-        SEDCMD="$SED -i ''"  # thats two single quotes
+        SEDCMD="$SED -i '' -f"  # thats two single quotes
     else
 	log "Using GNU sed syntax"
-        SEDCMD="$SED -i"
+        SEDCMD="$SED -i -f"
     fi
 
     echo "" > $BUILDDIR/sedcmds
@@ -49,7 +49,7 @@ patch_category_game_xml()
 	echo $($BUILDDIR/build_sed.tcl $MATCHFILE $REPLACEFILE) >> $BUILDDIR/sedcmds
     done
 
-    $SEDCMD -f $BUILDDIR/sedcmds dev_flash/vsh/resource/explore/xmb/category_game.xml || die "sed failed"
+    $SEDCMD $BUILDDIR/sedcmds dev_flash/vsh/resource/explore/xmb/category_game.xml || die "sed failed"
 
     rm $BUILDDIR/sedcmds
 }
