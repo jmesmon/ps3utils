@@ -16,7 +16,7 @@ PUP="pup"
 FIX_TAR="fix_tar"
 PKG="pkg"
 UNPKG="unpkg"
-LOGFILE="$BUILDDIR/create_cfw.log"
+LOGFILE="$BUILDDIR/$(basename $0 .sh).log"
 OUTDIR="$BUILDDIR/CFW"
 OFWDIR="$BUILDDIR/OFW"
 USTARCMD="tar --format ustar -cvf"
@@ -38,6 +38,10 @@ patch_category_game_xml()
 die()
 {
     log "$@"
+    echo "See $LOGFILE for more info"
+    echo "Last lines of log : "
+    echo "*****************"
+    tail $LOGFILE
     exit 1
 }
 
