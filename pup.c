@@ -19,8 +19,10 @@
 
 #ifdef WIN32
 #include <winsock.h>
+#define MKDIR(x,y) mkdir(x)
 #else
 #include <arpa/inet.h>
+#define MKDIR(x,y) mkdir(x,y)
 #endif
 
 #include "sha1.h"
@@ -314,17 +316,10 @@ static void extract (const char *file, const char *dest)
 
   print_header_info (&header, &footer);
 
-#ifdef WIN32
-  if (mkdir (dest) != 0) {
+  if (MKDIR (dest, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
     perror ("Couldn't create output directory");
     goto error;
   }
-#else
-  if (mkdir (dest, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
-    perror ("Couldn't create output directory");
-    goto error;
-  }
-#endif
 
   for (i = 0; (uint64_t) i < header.file_count; i++) {
     const char *file = NULL;
