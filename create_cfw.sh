@@ -34,7 +34,7 @@ patch_category_game_xml()
     log "Patching XML file"
 
     if [ "$($SED --version 2>&1 | grep GNU -c)" == 0 ]; then
-        log "using BSD sed syntax"
+        log "Using BSD sed syntax"
         SEDCMD="$SED -i ''"  # thats two single quotes
     else
 	log "Using GNU sed syntax"
