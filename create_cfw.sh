@@ -31,7 +31,7 @@ if [ "x$INFILE" == "x" -o "x$OUTFILE" == "x" ]; then
     exit
 fi
 
-if [ ! -f $SEDCMDS ]; then
+if [ ! -f "$SEDCMDS" ]; then
     echo "Could not find sed command file in $SEDCMDS"
     echo "Make sure the file is in the same directory as this script"
     exit
@@ -49,7 +49,7 @@ patch_category_game_xml()
         SED_INPLACE="-i"
     fi
 
-    $SED $SED_INPLACE -f $SEDCMDS dev_flash/vsh/resource/explore/xmb/category_game.xml || die "Patching with sed failed"
+    $SED $SED_INPLACE -f "$SEDCMDS" dev_flash/vsh/resource/explore/xmb/category_game.xml || die "Patching with sed failed"
 }
 
 die()
@@ -58,48 +58,49 @@ die()
     echo "See $LOGFILE for more info"
     echo "Last lines of log : "
     echo "*****************"
-    tail $LOGFILE
+    tail "$LOGFILE"
     exit 1
 }
 
 log ()
 {
     echo "$@"
-    echo "$@" >> $LOGFILE
+    echo "$@" >> "$LOGFILE"
 }
-echo > $LOGFILE
+
+echo > "$LOGFILE"
 log "PS3 Custom Firmware Creator"
 log "By KaKaRoTo"
 log ""
 
 log "Deleting $OUTDIR and $OUTFILE"
-rm -rf $OUTDIR
-rm -f $OUTFILE
+rm -rf "$OUTDIR"
+rm -f "$OUTFILE"
 if [ "x$OFWDIR" != "x" ]; then
-    rm -rf $OFWDIR
+    rm -rf "$OFWDIR"
 fi
 
 log "Unpacking update file $INFILE"
-$PUP x $INFILE $OUTDIR >> $LOGFILE 2>&1 || die "Could not extract the PUP file"
+$PUP x "$INFILE" "$OUTDIR" >> "$LOGFILE" 2>&1 || die "Could not extract the PUP file"
 
-cd $OUTDIR
+cd "$OUTDIR"
 mkdir update_files
 cd update_files
 log "Extracting update files from unpacked PUP"
-tar -xvf $OUTDIR/update_files.tar  >> $LOGFILE 2>&1 || die "Could not untar the update files"
+tar -xvf "$OUTDIR/update_files.tar"  >> "$LOGFILE" 2>&1 || die "Could not untar the update files"
 
 if [ "x$OFWDIR" != "x" ]; then
     log "Copying firmware to $OFWDIR"
-    cd $BUILDDIR
-    cp -r $OUTDIR $OFWDIR
-    cd $OUTDIR/update_files
+    cd "$BUILDDIR"
+    cp -r "$OUTDIR" "$OFWDIR"
+    cd "$OUTDIR/update_files"
 fi
 
 mkdir dev_flash
 cd dev_flash
 log "Unpkg-ing dev_flash files"
 for f in ../dev_flash*tar*; do
-    $UNPKG $f "$(basename $f).tar" >> $LOGFILE 2>&1 || die "Could not unpkg $f"
+    $UNPKG "$f" "$(basename $f).tar" >> "$LOGFILE" 2>&1 || die "Could not unpkg $f"
 done
 
 log "Searching for category_game.xml in dev_flash"
@@ -109,34 +110,34 @@ if [ "x$TAR_FILE" == "x" ]; then
 fi
 log "Found xml file in $TAR_FILE"
 
-tar -xvf $TAR_FILE >> $LOGFILE 2>&1 || die "Could not untar dev_flash file"
+tar -xvf "$TAR_FILE" >> "$LOGFILE" 2>&1 || die "Could not untar dev_flash file"
 
-rm $TAR_FILE
+rm "$TAR_FILE"
 patch_category_game_xml
 
 log "Recreating dev_flash archive"
-$USTARCMD $TAR_FILE dev_flash/ >> $LOGFILE 2>&1 || die "Could not create dev_flash tar file"
-$FIX_TAR $TAR_FILE >> $LOGFILE 2>&1 || die "Could not fix the tar file"
+$USTARCMD "$TAR_FILE" dev_flash/ >> "$LOGFILE" 2>&1 || die "Could not create dev_flash tar file"
+$FIX_TAR "$TAR_FILE" >> "$LOGFILE" 2>&1 || die "Could not fix the tar file"
 
 PKG_FILE=$(basename $(dirname $TAR_FILE) .tar)
 log "Recreating pkg file $PKG_FILE"
 log "Entropy needed for random key signing. MOVE YOUR MOUSE until it's done!!!"
-$PKG retail $(dirname $TAR_FILE) $PKG_FILE  >> $LOGFILE 2>&1 || die "Could not create pkg file"
-mv $PKG_FILE $OUTDIR/update_files
-cd $OUTDIR/update_files
+$PKG retail "$(dirname $TAR_FILE)" "$PKG_FILE"  >> "$LOGFILE" 2>&1 || die "Could not create pkg file"
+mv "$PKG_FILE" "$OUTDIR/update_files"
+cd "$OUTDIR/update_files"
 rm -rf dev_flash
 
 log "Creating update files archive"
-$USTARCMD $OUTDIR/update_files.tar *.pkg *.img dev_flash3_* dev_flash_*  >> $LOGFILE 2>&1 || die "Could not create update files archive"
-$FIX_TAR $OUTDIR/update_files.tar >> $LOGFILE 2>&1 || die "Could not fix update tar file"
+$USTARCMD "$OUTDIR/update_files.tar" *.pkg *.img dev_flash3_* dev_flash_*  >> "$LOGFILE" 2>&1 || die "Could not create update files archive"
+$FIX_TAR "$OUTDIR/update_files.tar" >> "$LOGFILE" 2>&1 || die "Could not fix update tar file"
 
-VERSION=$(cat $OUTDIR/version.txt)
-echo "$VERSION-KaKaRoTo" > $OUTDIR/version.txt
+VERSION=$(cat "$OUTDIR/version.txt")
+echo "$VERSION-KaKaRoTo" > "$OUTDIR/version.txt"
 
-cd $BUILDDIR
+cd "$BUILDDIR"
 
 log "Retreiving package build number"
-BUILD_NUMBER=$($PUP i $INFILE 2>/dev/null | grep "Image version" | $AWK '{print $3}')
+BUILD_NUMBER=$($PUP i "$INFILE" 2>/dev/null | grep "Image version" | $AWK '{print $3}')
 
 if [ "x$BUILD_NUMBER" == "x" ]; then
     die "Could not find build number"
@@ -145,6 +146,6 @@ fi
 log "Found build number : $BUILD_NUMBER"
 
 log "Creating CFW file"
-$PUP c $OUTDIR $OUTFILE $BUILD_NUMBER >> $LOGFILE 2>&1 || die "Could not Create PUP file"
+$PUP c "$OUTDIR" "$OUTFILE" $BUILD_NUMBER >> "$LOGFILE" 2>&1 || die "Could not Create PUP file"
 
 
