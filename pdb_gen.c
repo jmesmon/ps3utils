@@ -16,8 +16,12 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
-#include <arpa/inet.h>
 
+#ifdef WIN32
+#include <winsock.h>
+#else
+#include <arpa/inet.h>
+#endif
 
 #define PDB_HEADER		0x00000000
 
@@ -169,7 +173,13 @@ int main (int argc, char *argv[])
 
   for (i = 2; i < 20 && ret == -1; i++) {
     sprintf (path, "%.8X", i);
+    
+#ifdef WIN32
+    ret = mkdir (path);
+#else
     ret = mkdir (path, 0777);
+#endif
+
     if (ret != 0 && errno != EEXIST) {
       perror ("Error creating directory : ");
       return -4;
