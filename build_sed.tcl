@@ -17,8 +17,6 @@ if {[expr [llength $argv] % 2] != 0 } {
    exit
 }
 
-set result ""
 foreach {match replace} $argv {
-   append result "s/[replace [read_file $match]]/[replace [read_file $replace]]/"
+   puts "s/[replace [read_file $match]]/[replace [read_file $replace]]/"
 }
-puts $result
