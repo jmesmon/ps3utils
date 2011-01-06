@@ -11,6 +11,9 @@ CFLAGS=-Wall -Wextra \
         -Wno-unused-parameter \
         -Wno-missing-field-initializers
 
+ifeq ($(findstring MINGW, $(shell uname -s)), MINGW)
+  LDLIBS=-lws2_32
+endif
 
 BINS= \
 	pdb_gen \
@@ -23,4 +26,4 @@ all: $(BINS)
 pup: sha1.o pup.o
 
 clean:
-	rm -f $(BINS) *~
+	rm -f $(BINS) *~ *.o *.exe
