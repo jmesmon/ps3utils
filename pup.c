@@ -332,7 +332,11 @@ static void extract (const char *file, const char *dest)
       printf ("*** Unknown entry id, file skipped ****\n\n");
       continue;
     }
-    sprintf (filename, "%s/%s", dest, file);
+
+    if (snprintf (filename, PATH_MAX+1, "%s/%s", dest, file) > PATH_MAX) {
+      fprintf (stderr, "Filename buffer overflow detected\n");
+      goto error;
+    }
 
     printf ("Writing file %s\n", filename);
     out = fopen (filename, "wb");
@@ -440,7 +444,12 @@ static void create (const char *directory, const char *dest, long build)
     PUPFileEntry *file = NULL;
     PUPHashEntry *hash = NULL;
 
-    sprintf (filename, "%s/%s", directory, entry->filename);
+    if (snprintf (filename, PATH_MAX+1, "%s/%s",
+            directory, entry->filename) > PATH_MAX) {
+      fprintf (stderr, "Filename buffer overflow detected\n");
+      goto error;
+    }
+
 
     fd = fopen (filename, "rb");
     if (fd == NULL) {
@@ -552,7 +561,11 @@ static void create (const char *directory, const char *dest, long build)
       printf ("*** Unknown entry id, file skipped ****\n\n");
       continue;
     }
-    sprintf (filename, "%s/%s", directory, file);
+
+    if (snprintf (filename, PATH_MAX+1, "%s/%s", directory, file) > PATH_MAX) {
+      fprintf (stderr, "Filename buffer overflow detected\n");
+      goto error;
+    }
 
     fd = fopen (filename, "rb");
     if (fd == NULL) {
