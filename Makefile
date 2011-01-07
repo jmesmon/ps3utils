@@ -11,6 +11,8 @@ CFLAGS=-Wall -Wextra \
         -Wno-unused-parameter \
         -Wno-missing-field-initializers
 
+prefix = $(HOME)
+
 ifeq ($(findstring MINGW, $(shell uname -s)), MINGW)
   MINGW=1
 endif
@@ -24,6 +26,9 @@ BINS= \
 	find_syscall \
 	pup \
 	fix_tar
+
+install: all
+	install $(BINS) $(prefix)/bin/
 
 all: $(BINS)
 
