@@ -16,15 +16,14 @@
 #include <unistd.h>
 #include <limits.h>
 #include <string.h>
+#include <inttypes.h>
 
 #ifdef WIN32
 #include <winsock.h>
 #define MKDIR(x,y) mkdir(x)
-#define UINT64_FMT "I64u"
 #else
 #include <arpa/inet.h>
 #define MKDIR(x,y) mkdir(x,y)
-#define UINT64_FMT "llu"
 #endif
 
 #include "sha1.h"
@@ -130,11 +129,11 @@ static void print_hash (const char *message, uint8_t hash[20])
 static void print_header_info (PUPHeader *header, PUPFooter *footer)
 {
   printf ("PUP file information\n"
-      "Package version: %" UINT64_FMT "\n"
-      "Image version: %" UINT64_FMT "\n"
-      "File count: %" UINT64_FMT "\n"
-      "Header length: %" UINT64_FMT "\n"
-      "Data length: %" UINT64_FMT "\n",
+      "Package version: %" PRIu64 "\n"
+      "Image version: %" PRIu64 "\n"
+      "File count: %" PRIu64 "\n"
+      "Header length: %" PRIu64 "\n"
+      "Data length: %" PRIu64 "\n",
       header->package_version, header->image_version,
       header->file_count, header->header_length, header->data_length);
 
@@ -151,7 +150,7 @@ static void print_file_info ( PUPFileEntry *file, PUPHashEntry *hash)
       "\tEntry id: 0x%X\n"
       "\tFilename : %s\n"
       "\tData offset: 0x%X\n"
-      "\tData length: %" UINT64_FMT "\n",
+      "\tData length: %" PRIu64 "\n",
       (uint32_t) hash->entry_id,  (uint32_t) file->entry_id,
       filename ? filename : "Unknown entry id",
       (uint32_t) file->data_offset, file->data_length);
