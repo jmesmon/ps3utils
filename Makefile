@@ -13,14 +13,23 @@ CFLAGS = -Wall -Wextra \
          -Wno-unused-parameter \
          -Wno-missing-field-initializers
 
+prefix = $(HOME)
+
 ifeq ($(findstring MINGW, $(shell uname -s)), MINGW)
-LDLIBS = -lws2_32
+  MINGW=1
+endif
+
+ifdef MINGW
+  LDLIBS=-lws2_32
 endif
 
 BINS = pdb_gen \
        find_syscall \
        pup \
        fix_tar
+
+install: all
+	install $(BINS) $(prefix)/bin/
 
 all: $(BINS)
 
