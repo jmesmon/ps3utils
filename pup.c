@@ -20,9 +20,11 @@
 #ifdef WIN32
 #include <winsock.h>
 #define MKDIR(x,y) mkdir(x)
+#define UINT64_FMT "I64u"
 #else
 #include <arpa/inet.h>
 #define MKDIR(x,y) mkdir(x,y)
+#define UINT64_FMT "llu"
 #endif
 
 #include "sha1.h"
@@ -127,25 +129,14 @@ static void print_hash (const char *message, uint8_t hash[20])
 
 static void print_header_info (PUPHeader *header, PUPFooter *footer)
 {
-#ifdef WIN32
   printf ("PUP file information\n"
-      "Package version: %I64d\n"
-      "Image version: %I64d\n"
-      "File count: %I64d\n"
-      "Header length: %I64d\n"
-      "Data length: %I64d\n",
+      "Package version: %" UINT64_FMT "\n"
+      "Image version: %" UINT64_FMT "\n"
+      "File count: %" UINT64_FMT "\n"
+      "Header length: %" UINT64_FMT "\n"
+      "Data length: %" UINT64_FMT "\n",
       header->package_version, header->image_version,
       header->file_count, header->header_length, header->data_length);
-#else
-  printf ("PUP file information\n"
-      "Package version: %llu\n"
-      "Image version: %llu\n"
-      "File count: %llu\n"
-      "Header length: %llu\n"
-      "Data length: %llu\n",
-      header->package_version, header->image_version,
-      header->file_count, header->header_length, header->data_length);
-#endif
 
   print_hash ("PUP file hash", footer->hash);
 }
@@ -156,25 +147,14 @@ static void print_file_info ( PUPFileEntry *file, PUPHashEntry *hash)
 
   filename = id_to_filename (file->entry_id);
 
-#ifdef WIN32
   printf ("\tFile %d\n"
       "\tEntry id: 0x%X\n"
       "\tFilename : %s\n"
       "\tData offset: 0x%X\n"
-      "\tData length: %I64d\n",
+      "\tData length: %" UINT64_FMT "\n",
       (uint32_t) hash->entry_id,  (uint32_t) file->entry_id,
       filename ? filename : "Unknown entry id",
       (uint32_t) file->data_offset, file->data_length);
-#else
-  printf ("\tFile %d\n"
-      "\tEntry id: 0x%X\n"
-      "\tFilename : %s\n"
-      "\tData offset: 0x%X\n"
-      "\tData length: %llu\n",
-      (uint32_t) hash->entry_id,  (uint32_t) file->entry_id,
-      filename ? filename : "Unknown entry id",
-      (uint32_t) file->data_offset, file->data_length);
-#endif
 
   print_hash ("File hash", hash->hash);
 }
