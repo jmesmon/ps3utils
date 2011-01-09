@@ -28,10 +28,10 @@ BINS = pdb_gen \
        pup \
        fix_tar
 
+all: $(BINS)
+
 install: all
 	install $(BINS) $(prefix)/bin/
-
-all: $(BINS)
 
 pup: sha1.o pup.o
 
