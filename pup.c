@@ -21,11 +21,9 @@
 #ifdef WIN32
 #include <winsock.h>
 #define MKDIR(x,y) mkdir(x)
-#define UINT64_FMT "I64u"
 #else
 #include <arpa/inet.h>
 #define MKDIR(x,y) mkdir(x,y)
-#define UINT64_FMT "llu"
 #endif
 
 #include "sha1.h"
